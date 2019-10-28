@@ -41,3 +41,11 @@ Route::get('/sair', function () {
     \Illuminate\Support\Facades\Auth::logout();
     return redirect('/entrar');
 });
+
+Route::get('email',function(){
+    return new \App\Mail\NotificarNovaSerie(
+        'Arrow',
+        4,
+        10
+    );
+});
