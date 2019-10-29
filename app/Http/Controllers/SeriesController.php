@@ -8,6 +8,7 @@ use App\Serie;
 use App\Services\CriadorDeSerie;
 use App\Services\RemovedorDeSerie;
 use App\Temporada;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,6 +38,21 @@ class SeriesController extends Controller
             $request->qtd_temporadas,
             $request->ep_por_temporada
         );
+
+        $mail = new \App\Mail\NotificarNovaSerie(
+            $request->nome,
+            $request->qtd_temporadas,
+            $request->ep_por_temporada
+        );
+        $usuarioAutenticado = Auth::user();
+        $usuariosNaoAutenticados = \App\User::where('id','!=',$usuarioAutenticado->id)->get();
+
+        $minutosAdicionais = 0;
+        foreach ($usuariosNaoAutenticados as $usuario)
+        {
+            $quando = now()->addMinutes($minutosAdicionais++);
+            \Illuminate\Support\Facades\Mail::to($usuario)->later($quando, $mail);
+        }
 
         $request->session()
             ->flash(

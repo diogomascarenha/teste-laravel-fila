@@ -43,9 +43,13 @@ Route::get('/sair', function () {
 });
 
 Route::get('email',function(){
-    return new \App\Mail\NotificarNovaSerie(
+     $mail = new \App\Mail\NotificarNovaSerie(
         'Arrow',
         4,
         10
     );
+     $user = \App\User::where('email','diogo@teste.com')->first();
+     \Illuminate\Support\Facades\Mail::to($user)->send($mail);
+
+     return 'Email enviado';
 });
