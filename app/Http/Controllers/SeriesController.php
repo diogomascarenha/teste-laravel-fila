@@ -39,19 +39,21 @@ class SeriesController extends Controller
             $request->ep_por_temporada
         );
 
-        $mail = new \App\Mail\NotificarNovaSerie(
-            $request->nome,
-            $request->qtd_temporadas,
-            $request->ep_por_temporada
-        );
+
         $usuarioAutenticado = Auth::user();
         $usuariosNaoAutenticados = \App\User::where('id','!=',$usuarioAutenticado->id)->get();
 
-        $minutosAdicionais = 0;
+        $segundosAdicionais = 0;
         foreach ($usuariosNaoAutenticados as $usuario)
         {
-            $quando = now()->addMinutes($minutosAdicionais++);
+            $mail = new \App\Mail\NotificarNovaSerie(
+                $request->nome,
+                $request->qtd_temporadas,
+                $request->ep_por_temporada
+            );
+            $quando = now()->addSeconds($segundosAdicionais * 15);
             \Illuminate\Support\Facades\Mail::to($usuario)->later($quando, $mail);
+            $segundosAdicionais++;
         }
 
         $request->session()
