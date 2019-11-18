@@ -8,7 +8,7 @@
                             <tr>
                                 <td>
                                     <a href="{{ $url }}" class="button button-{{ $color ?? 'primary' }}" target="_blank">
-                                        TEXTO EXEMPLO - {{ $slot }}
+                                        {{ $slot }}
                                     </a>
                                 </td>
                             </tr>
