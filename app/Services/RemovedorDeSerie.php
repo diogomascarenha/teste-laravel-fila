@@ -1,7 +1,7 @@
 <?php
 namespace App\Services;
 
-use App\{Serie, Temporada, Episodio};
+use App\{Events\SerieExcluidaEvent, Serie, Temporada, Episodio};
 use Illuminate\Support\Facades\DB;
 
 class RemovedorDeSerie
@@ -11,13 +11,24 @@ class RemovedorDeSerie
         $nomeSerie = '';
         DB::transaction(function () use ($serieId, &$nomeSerie) {
             $serie = Serie::find($serieId);
+            $serieArray = $serie->toArray();
             $nomeSerie = $serie->nome;
 
             $this->removerTemporadas($serie);
+            //$this->excluirCapa($serie);
             $serie->delete();
+            event(new SerieExcluidaEvent($serieArray));
         });
 
         return $nomeSerie;
+    }
+
+    public function excluirCapa($serie)
+    {
+        if($serie->capa)
+        {
+            unlink($serie->caminho_arquivo_capa .  $serie->capa);
+        }
     }
 
     /**

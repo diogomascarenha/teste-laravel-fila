@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Episodio;
+use App\Events\SerieCriadaEvent;
 use App\Http\Requests\SeriesFormRequest;
 use App\Serie;
 use App\Services\CriadorDeSerie;
 use App\Services\RemovedorDeSerie;
-use App\Temporada;
-use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Ramsey\Uuid\Uuid;
 
 class SeriesController extends Controller
 {
     public function index(Request $request)
     {
-        $series = Serie::query()
+        $series   = Serie::query()
             ->orderBy('nome')
             ->get();
         $mensagem = $request->session()->get('mensagem');
@@ -32,21 +31,34 @@ class SeriesController extends Controller
     public function store(
         SeriesFormRequest $request,
         CriadorDeSerie $criadorDeSerie
-    ) {
+    )
+    {
+        $capa = null;
+        if ($request->capa) {
+            $prefixo        = Uuid::uuid4()->toString();
+            $extensao       = request()->capa->getClientOriginalExtension();
+            $nomeArquivo    = $prefixo . '.' . $extensao;
+            $caminhoArquivo = 'imagens/series';
+            $request->capa->move(public_path($caminhoArquivo), $nomeArquivo);
+            $capa = $caminhoArquivo . '/' . $nomeArquivo;
+        }
+
         $serie = $criadorDeSerie->criarSerie(
             $request->nome,
+            $capa,
             $request->qtd_temporadas,
             $request->ep_por_temporada
         );
 
+        event(new SerieCriadaEvent($serie));
 
-        $usuarioAutenticado = Auth::user();
-        $usuariosNaoAutenticados = \App\User::where('id','!=',$usuarioAutenticado->id)->get();
+
+        $usuarioAutenticado      = Auth::user();
+        $usuariosNaoAutenticados = \App\User::where('id', '!=', $usuarioAutenticado->id)->get();
 
         $segundosAdicionais = 0;
-        foreach ($usuariosNaoAutenticados as $usuario)
-        {
-            $mail = new \App\Mail\NotificarNovaSerie(
+        foreach ($usuariosNaoAutenticados as $usuario) {
+            $mail   = new \App\Mail\NotificarNovaSerie(
                 $request->nome,
                 $request->qtd_temporadas,
                 $request->ep_por_temporada
@@ -78,8 +90,8 @@ class SeriesController extends Controller
 
     public function editaNome(int $id, Request $request)
     {
-        $serie = Serie::find($id);
-        $novoNome = $request->nome;
+        $serie       = Serie::find($id);
+        $novoNome    = $request->nome;
         $serie->nome = $novoNome;
         $serie->save();
     }
