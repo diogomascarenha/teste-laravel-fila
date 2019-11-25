@@ -13,6 +13,7 @@ class NotificarNovaSerie extends Mailable
     public $nomeSerie;
     public $qtdTemporadas;
     public $qtdEpisodios;
+    public $capa;
 
     /**
      * Create a new message instance.
@@ -22,12 +23,14 @@ class NotificarNovaSerie extends Mailable
     public function __construct(
         $nomeSerie,
         $qtdTemporadas,
-        $qtdEpisodios
+        $qtdEpisodios,
+        $capa
     )
     {
-        $this->nomeSerie = $nomeSerie;
+        $this->nomeSerie     = $nomeSerie;
         $this->qtdTemporadas = $qtdTemporadas;
-        $this->qtdEpisodios = $qtdEpisodios;
+        $this->qtdEpisodios  = $qtdEpisodios;
+        $this->capa          = $capa;
     }
 
     /**

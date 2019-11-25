@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use App\Events\SerieCriadaEvent;
+use App\Events\SerieExcluidaEvent;
 use App\Listeners\CriarThumbnailCapaSerieListener;
+use App\Listeners\ExcluirArquivosSeriesListener;
+use App\Listeners\NotificarNovaSerieListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -21,7 +24,10 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         SerieCriadaEvent::class => [
-            CriarThumbnailCapaSerieListener::class
+            NotificarNovaSerieListener::class
+        ],
+        SerieExcluidaEvent::class => [
+            ExcluirArquivosSeriesListener::class
         ]
     ];
 

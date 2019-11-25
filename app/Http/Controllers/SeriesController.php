@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Events\SerieCriadaEvent;
 use App\Http\Requests\SeriesFormRequest;
+use App\Mail\NotificarNovaSerie;
 use App\Serie;
 use App\Services\CriadorDeSerie;
 use App\Services\RemovedorDeSerie;
+use App\Services\SalvarArquivo;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Facades\Mail;
 
 class SeriesController extends Controller
 {
@@ -30,43 +33,23 @@ class SeriesController extends Controller
 
     public function store(
         SeriesFormRequest $request,
-        CriadorDeSerie $criadorDeSerie
+        CriadorDeSerie $criadorDeSerie,
+        SalvarArquivo $salvarArquivo
     )
     {
-        $capa = null;
-        if ($request->capa) {
-            $prefixo        = Uuid::uuid4()->toString();
-            $extensao       = request()->capa->getClientOriginalExtension();
-            $nomeArquivo    = $prefixo . '.' . $extensao;
-            $caminhoArquivo = 'imagens/series';
-            $request->capa->move(public_path($caminhoArquivo), $nomeArquivo);
-            $capa = $caminhoArquivo . '/' . $nomeArquivo;
-        }
+        $arquivo        = $request->file('capa');
+        $caminhoArquivo = Serie::caminhoArquivoCapa();
+        $capa           = $salvarArquivo->salvar($arquivo, $caminhoArquivo);
 
         $serie = $criadorDeSerie->criarSerie(
             $request->nome,
-            $capa,
             $request->qtd_temporadas,
-            $request->ep_por_temporada
+            $request->ep_por_temporada,
+            $capa
         );
 
-        event(new SerieCriadaEvent($serie));
-
-
-        $usuarioAutenticado      = Auth::user();
-        $usuariosNaoAutenticados = \App\User::where('id', '!=', $usuarioAutenticado->id)->get();
-
-        $segundosAdicionais = 0;
-        foreach ($usuariosNaoAutenticados as $usuario) {
-            $mail   = new \App\Mail\NotificarNovaSerie(
-                $request->nome,
-                $request->qtd_temporadas,
-                $request->ep_por_temporada
-            );
-            $quando = now()->addSeconds($segundosAdicionais * 15);
-            \Illuminate\Support\Facades\Mail::to($usuario)->later($quando, $mail);
-            $segundosAdicionais++;
-        }
+        $usuarioAutenticado = $request->user();
+        event(new SerieCriadaEvent($serie, $usuarioAutenticado));
 
         $request->session()
             ->flash(

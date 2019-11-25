@@ -15,7 +15,6 @@ class RemovedorDeSerie
             $nomeSerie = $serie->nome;
 
             $this->removerTemporadas($serie);
-            //$this->excluirCapa($serie);
             $serie->delete();
             event(new SerieExcluidaEvent($serieArray));
         });
@@ -23,13 +22,7 @@ class RemovedorDeSerie
         return $nomeSerie;
     }
 
-    public function excluirCapa($serie)
-    {
-        if($serie->capa)
-        {
-            unlink($serie->caminho_arquivo_capa .  $serie->capa);
-        }
-    }
+
 
     /**
      * @param $serie

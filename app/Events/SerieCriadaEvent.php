@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -20,13 +21,19 @@ class SerieCriadaEvent
     public $serie;
 
     /**
+     * @var User
+     */
+    public $usuario;
+
+    /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Serie $serie)
+    public function __construct(Serie $serie, User $usuario)
     {
-        $this->serie = $serie;
+        $this->serie   = $serie;
+        $this->usuario = $usuario;
     }
 
     /**

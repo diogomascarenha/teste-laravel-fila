@@ -9,9 +9,9 @@ class CriadorDeSerie
 {
     public function criarSerie(
         string $nomeSerie,
-        ?string $capa,
         int $qtdTemporadas,
-        int $epPorTemporada
+        int $epPorTemporada,
+        ?string $capa
     ): Serie {
         DB::beginTransaction();
         $serie = Serie::create([
@@ -33,7 +33,6 @@ class CriadorDeSerie
     {
         for ($i = 1; $i <= $qtdTemporadas; $i++) {
             $temporada = $serie->temporadas()->create(['numero' => $i]);
-
             $this->criaEpisodios($epPorTemporada, $temporada);
         }
     }

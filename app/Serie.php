@@ -17,13 +17,13 @@ class Serie extends Model
     public function getCapaUrlAttribute()
     {
         if(empty($this->capa)){
-            return url($this->caminho_arquivo_capa .'sem-imagem.jpg');
+            return url(self::caminhoArquivoCapa() .'sem-imagem.jpg');
         }
-        return url($this->caminho_arquivo_capa . $this->capa);
+        return url($this->capa);
     }
 
-    public function getCaminhoArquivoCapaAttribute()
+    public static function caminhoArquivoCapa()
     {
-        return 'imagens/series/';
+        return 'imagens/series';
     }
 }

@@ -20,7 +20,9 @@ body {
     word-break: break-all;
     word-break: break-word;
 }
-
+img {
+    width: 150px;
+}
 p,
 ul,
 ol,

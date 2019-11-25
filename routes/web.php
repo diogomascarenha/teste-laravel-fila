@@ -43,11 +43,15 @@ Route::get('/sair', function () {
 });
 
 Route::get('email',function(){
+
      $mail = new \App\Mail\NotificarNovaSerie(
         'Arrow',
         4,
-        10
+        10,
+         \App\Serie::all()->last()->capa
     );
+
+     return $mail;
      $user = \App\User::where('email','diogo@teste.com')->first();
      \Illuminate\Support\Facades\Mail::to($user)->send($mail);
 

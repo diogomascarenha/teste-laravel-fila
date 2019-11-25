@@ -1,5 +1,8 @@
 @component('mail::message')
 # Nova Série Adicionada
+@if($capa)
+![{{$nomeSerie}}]({{$capa}})
+@endif
 ## Nome: {{ $nomeSerie }}
 ## Quantidade de Temporadas: {{ $qtdTemporadas }}
 ## Quantidade de Episódios: {{ $qtdEpisodios }}
